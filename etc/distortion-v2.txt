@@ -1,0 +1,483 @@
+Untuk menambahkan kontrol volume untuk input dan output pada plugin JUCE Anda, Anda perlu menambahkan slider kontrol di editor dan memperbarui proses pemrosesan audio untuk menerapkan volume tersebut. Berikut adalah langkah-langkah untuk melakukannya:
+
+### 1. Update `PluginProcessor.h`
+
+Tambahkan parameter untuk volume input dan output:
+
+```cpp
+/*
+  ==============================================================================
+
+    This file contains the basic framework code for a JUCE plugin processor.
+
+  ============================================================================== 
+*/
+
+#pragma once
+
+#include <JuceHeader.h>
+
+//==============================================================================
+/**
+*/
+class GainAudioProcessor  : public juce::AudioProcessor
+{
+public:
+    //==============================================================================
+    GainAudioProcessor();
+    ~GainAudioProcessor() override;
+
+    //==============================================================================
+    void prepareToPlay (double sampleRate, int samplesPerBlock) override;
+    void releaseResources() override;
+
+   #ifndef JucePlugin_PreferredChannelConfigurations
+    bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
+   #endif
+
+    void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
+
+    //==============================================================================
+    juce::AudioProcessorEditor* createEditor() override;
+    bool hasEditor() const override;
+
+    //==============================================================================
+    const juce::String getName() const override;
+
+    bool acceptsMidi() const override;
+    bool producesMidi() const override;
+    bool isMidiEffect() const override;
+    double getTailLengthSeconds() const override;
+
+    //==============================================================================
+    int getNumPrograms() override;
+    int getCurrentProgram() override;
+    void setCurrentProgram (int index) override;
+    const juce::String getProgramName (int index) override;
+    void changeProgramName (int index, const juce::String& newName) override;
+
+    //==============================================================================
+    void getStateInformation (juce::MemoryBlock& destData) override;
+    void setStateInformation (const void* data, int sizeInBytes) override;
+
+    // Distortion parameters
+    enum DistortionType
+    {
+        HardClipping,
+        SoftClipping,
+        FullWaveRectification,
+        SoftWaveRectification
+    };
+
+    DistortionType distortionType = HardClipping;
+    float distortionAmount = 0.5f;
+    float inputVolume = 1.0f;  // Input volume
+    float outputVolume = 1.0f; // Output volume
+
+private:
+    // Distortion methods
+    float applyHardClipping(float sample);
+    float applySoftClipping(float sample);
+    float applyFullWaveRectification(float sample);
+    float applySoftWaveRectification(float sample);
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GainAudioProcessor)
+};
+```
+
+### 2. Update `PluginProcessor.cpp`
+
+Modifikasi `processBlock` untuk menerapkan volume input dan output:
+
+```cpp
+/*
+  ==============================================================================
+
+    This file contains the basic framework code for a JUCE plugin processor.
+
+  ============================================================================== 
+*/
+
+#include "PluginProcessor.h"
+#include "PluginEditor.h"
+
+//==============================================================================
+GainAudioProcessor::GainAudioProcessor()
+#ifndef JucePlugin_PreferredChannelConfigurations
+     : AudioProcessor (BusesProperties()
+                     #if ! JucePlugin_IsMidiEffect
+                      #if ! JucePlugin_IsSynth
+                       .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
+                      #endif
+                       .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
+                     #endif
+                       )
+#endif
+{
+}
+
+GainAudioProcessor::~GainAudioProcessor()
+{
+}
+
+//==============================================================================
+const juce::String GainAudioProcessor::getName() const
+{
+    return JucePlugin_Name;
+}
+
+bool GainAudioProcessor::acceptsMidi() const
+{
+   #if JucePlugin_WantsMidiInput
+    return true;
+   #else
+    return false;
+   #endif
+}
+
+bool GainAudioProcessor::producesMidi() const
+{
+   #if JucePlugin_ProducesMidiOutput
+    return true;
+   #else
+    return false;
+   #endif
+}
+
+bool GainAudioProcessor::isMidiEffect() const
+{
+   #if JucePlugin_IsMidiEffect
+    return true;
+   #else
+    return false;
+   #endif
+}
+
+double GainAudioProcessor::getTailLengthSeconds() const
+{
+    return 0.0;
+}
+
+int GainAudioProcessor::getNumPrograms()
+{
+    return 1;
+}
+
+int GainAudioProcessor::getCurrentProgram()
+{
+    return 0;
+}
+
+void GainAudioProcessor::setCurrentProgram (int index)
+{
+}
+
+const juce::String GainAudioProcessor::getProgramName (int index)
+{
+    return {};
+}
+
+void GainAudioProcessor::changeProgramName (int index, const juce::String& newName)
+{
+}
+
+//==============================================================================
+void GainAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+{
+    // Initialization code
+}
+
+void GainAudioProcessor::releaseResources()
+{
+    // Cleanup code
+}
+
+#ifndef JucePlugin_PreferredChannelConfigurations
+bool GainAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+{
+  #if JucePlugin_IsMidiEffect
+    juce::ignoreUnused (layouts);
+    return true;
+  #else
+    if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
+     && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
+        return false;
+
+   #if ! JucePlugin_IsSynth
+    if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
+        return false;
+   #endif
+
+    return true;
+  #endif
+}
+#endif
+
+float GainAudioProcessor::applyHardClipping(float sample)
+{
+    const float threshold = 0.7f;
+    if (sample > threshold)
+        return threshold;
+    if (sample < -threshold)
+        return -threshold;
+    return sample;
+}
+
+float GainAudioProcessor::applySoftClipping(float sample)
+{
+    const float threshold = 0.7f;
+    return sample / (1.0f + fabs(sample / threshold));
+}
+
+float GainAudioProcessor::applyFullWaveRectification(float sample)
+{
+    return fabs(sample);
+}
+
+float GainAudioProcessor::applySoftWaveRectification(float sample)
+{
+    const float threshold = 0.7f;
+    if (sample > threshold)
+        return threshold;
+    if (sample < -threshold)
+        return -threshold;
+    return sample;
+}
+
+void GainAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+{
+    juce::ScopedNoDenormals noDenormals;
+    auto totalNumInputChannels  = getTotalNumInputChannels();
+    auto totalNumOutputChannels = getTotalNumOutputChannels();
+
+    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+        buffer.clear (i, 0, buffer.getNumSamples());
+
+    for (int channel = 0; channel < totalNumInputChannels; ++channel)
+    {
+        auto* channelData = buffer.getWritePointer (channel);
+
+        // Apply input volume
+        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+        {
+            channelData[sample] *= inputVolume;
+        }
+
+        // Apply distortion
+        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+        {
+            float processedSample = channelData[sample];
+            
+            switch (distortionType)
+            {
+                case HardClipping:
+                    processedSample = applyHardClipping(processedSample);
+                    break;
+                case SoftClipping:
+                    processedSample = applySoftClipping(processedSample);
+                    break;
+                case FullWaveRectification:
+                    processedSample = applyFullWaveRectification(processedSample);
+                    break;
+                case SoftWaveRectification:
+                    processedSample = applySoftWaveRectification(processedSample);
+                    break;
+            }
+
+            channelData[sample] = processedSample * distortionAmount; // Apply gain
+        }
+
+        // Apply output volume
+        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+        {
+            channelData[sample] *= outputVolume;
+        }
+    }
+}
+
+//==============================================================================
+bool GainAudioProcessor::hasEditor() const
+{
+    return true;
+}
+
+juce::AudioProcessorEditor* GainAudioProcessor::createEditor()
+{
+    return new GainAudioProcessorEditor (*this);
+}
+
+//==============================================================================
+void GainAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
+{
+    // Store state information
+}
+
+void GainAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+{
+    // Restore state information
+}
+
+//==============================================================================
+juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
+{
+    return new GainAudioProcessor();
+}
+```
+
+### 3. Update `PluginEditor.h`
+
+Tambahkan slider untuk volume input dan output:
+
+```cpp
+/*
+  ==============================================================================
+
+    This file contains the basic framework code for a JUCE plugin editor.
+
+  ============================================================================== 
+*/
+
+#pragma once
+
+#include <JuceHeader.h>
+#include "PluginProcessor.h"
+
+//==============================================================================
+/**
+*/
+class GainAudioProcessorEditor  : public juce::AudioProcessorEditor
+{
+public:
+    GainAudioProcessorEditor (GainAudioProcessor&);
+    ~GainAudioProcessorEditor() override;
+
+    //==============================================================================
+    void paint (juce::Graphics&) override;
+    void resized() override;
+
+private:
+    GainAudioProcessor& audioProcessor;
+
+    // Slider for controlling gain
+    juce::Slider gainSlider;
+    juce::Label gainLabel;
+
+    // ComboBox for selecting distortion type
+    juce::ComboBox distortionComboBox;
+    juce::Label distortionLabel;
+
+    // Slider for controlling input volume
+
+
+    juce::Slider inputVolumeSlider;
+    juce::Label inputVolumeLabel;
+
+    // Slider for controlling output volume
+    juce::Slider outputVolumeSlider;
+    juce::Label outputVolumeLabel;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GainAudioProcessorEditor)
+};
+```
+
+### 4. Update `PluginEditor.cpp`
+
+Tambahkan pengaturan untuk slider volume input dan output di editor:
+
+```cpp
+/*
+  ==============================================================================
+
+    This file contains the basic framework code for a JUCE plugin editor.
+
+  ============================================================================== 
+*/
+
+#include "PluginProcessor.h"
+#include "PluginEditor.h"
+
+//==============================================================================
+GainAudioProcessorEditor::GainAudioProcessorEditor (GainAudioProcessor& p)
+    : AudioProcessorEditor (&p), audioProcessor (p)
+{
+    // Set editor size
+    setSize (400, 400);
+
+    // Setup gain slider
+    gainSlider.setSliderStyle(juce::Slider::LinearHorizontal);
+    gainSlider.setRange(0.0, 2.0, 0.01);
+    gainSlider.setValue(1.0);
+    gainSlider.onValueChange = [this] { audioProcessor.distortionAmount = gainSlider.getValue(); };
+    addAndMakeVisible(gainSlider);
+
+    // Setup gain label
+    gainLabel.setText("Gain", juce::dontSendNotification);
+    gainLabel.attachToComponent(&gainSlider, true);
+    addAndMakeVisible(gainLabel);
+
+    // Setup distortion type combo box
+    distortionComboBox.addItem("Hard Clipping", 1);
+    distortionComboBox.addItem("Soft Clipping", 2);
+    distortionComboBox.addItem("Full Wave Rectification", 3);
+    distortionComboBox.addItem("Soft Wave Rectification", 4);
+    distortionComboBox.onChange = [this] {
+        int selectedType = distortionComboBox.getSelectedId();
+        audioProcessor.distortionType = static_cast<GainAudioProcessor::DistortionType>(selectedType - 1);
+    };
+    addAndMakeVisible(distortionComboBox);
+
+    // Setup distortion label
+    distortionLabel.setText("Distortion Type", juce::dontSendNotification);
+    distortionLabel.attachToComponent(&distortionComboBox, true);
+    addAndMakeVisible(distortionLabel);
+
+    // Setup input volume slider
+    inputVolumeSlider.setSliderStyle(juce::Slider::LinearHorizontal);
+    inputVolumeSlider.setRange(0.0, 2.0, 0.01);
+    inputVolumeSlider.setValue(1.0);
+    inputVolumeSlider.onValueChange = [this] { audioProcessor.inputVolume = inputVolumeSlider.getValue(); };
+    addAndMakeVisible(inputVolumeSlider);
+
+    // Setup input volume label
+    inputVolumeLabel.setText("Input Volume", juce::dontSendNotification);
+    inputVolumeLabel.attachToComponent(&inputVolumeSlider, true);
+    addAndMakeVisible(inputVolumeLabel);
+
+    // Setup output volume slider
+    outputVolumeSlider.setSliderStyle(juce::Slider::LinearHorizontal);
+    outputVolumeSlider.setRange(0.0, 2.0, 0.01);
+    outputVolumeSlider.setValue(1.0);
+    outputVolumeSlider.onValueChange = [this] { audioProcessor.outputVolume = outputVolumeSlider.getValue(); };
+    addAndMakeVisible(outputVolumeSlider);
+
+    // Setup output volume label
+    outputVolumeLabel.setText("Output Volume", juce::dontSendNotification);
+    outputVolumeLabel.attachToComponent(&outputVolumeSlider, true);
+    addAndMakeVisible(outputVolumeLabel);
+}
+
+GainAudioProcessorEditor::~GainAudioProcessorEditor()
+{
+}
+
+//==============================================================================
+void GainAudioProcessorEditor::paint (juce::Graphics& g)
+{
+    g.fillAll (juce::Colours::darkgrey);
+    g.setColour (juce::Colours::white);
+    g.setFont (15.0f);
+    g.drawFittedText ("Distortion Plugin", getLocalBounds(), juce::Justification::centred, 1);
+}
+
+void GainAudioProcessorEditor::resized()
+{
+    auto bounds = getLocalBounds().reduced(10);
+    
+    gainSlider.setBounds(bounds.removeFromTop(30).reduced(10));
+    distortionComboBox.setBounds(bounds.removeFromTop(30).reduced(10));
+    inputVolumeSlider.setBounds(bounds.removeFromTop(30).reduced(10));
+    outputVolumeSlider.setBounds(bounds.removeFromTop(30).reduced(10));
+}
+```
+
+Dengan pembaruan ini, plugin Anda sekarang memiliki kontrol volume untuk input dan output serta kontrol distorsi yang lebih lengkap. Jangan lupa untuk membangun dan menguji plugin Anda untuk memastikan semuanya berfungsi dengan baik.

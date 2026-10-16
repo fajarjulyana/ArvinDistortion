@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="qQ60K1" name="ArvinDistortionPedal" projectType="audioplug"
+              useAppConfig="0" addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1"
+              companyWebsite="fajarjulyana.github.io" companyEmail="fajarjulyana1@gmail.com"
+              companyName="Fajar Julyana" companyCopyright="QWare.id" pluginVST3Category="Distortion,Fx"
+              headerPath="C:\ASIOSDK\common">
+  <MAINGROUP id="C4EI0E" name="ArvinDistortionPedal">
+    <GROUP id="{009DC3FC-D4AC-3C11-978F-F9D3990E0395}" name="Source">
+      <FILE id="kqfYI9" name="PluginParameter.h" compile="0" resource="0"
+            file="Source/PluginParameter.h"/>
+      <FILE id="ySpugx" name="PluginProcessor.cpp" compile="1" resource="0"
+            file="Source/PluginProcessor.cpp"/>
+      <FILE id="wfOes4" name="PluginProcessor.h" compile="0" resource="0"
+            file="Source/PluginProcessor.h"/>
+      <FILE id="YVRrGg" name="PluginEditor.cpp" compile="1" resource="0"
+            file="Source/PluginEditor.cpp"/>
+      <FILE id="vaBc4w" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+    </GROUP>
+    <FILE id="RUqmVM" name="background.png" compile="0" resource="1" file="Source/assets/background.png"/>
+    <FILE id="T5vPqI" name="knob.png" compile="0" resource="1" file="Source/assets/knob.png"/>
+    <FILE id="bbIVgR" name="icons.png" compile="0" resource="1" file="Source/assets/icons.png"/>
+  </MAINGROUP>
+  <MODULES>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_plugin_client" showAllCode="1" useLocalCopy="0"
+            useGlobalPath="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+  </MODULES>
+  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"
+               JUCE_ASIO="1"/>
+  <EXPORTFORMATS>
+    <VS2019 targetFolder="Builds/VisualStudio2019" smallIcon="bbIVgR" bigIcon="bbIVgR">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug" enablePluginBinaryCopyStep="1"/>
+        <CONFIGURATION isDebug="0" name="Release"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path="../../juce"/>
+        <MODULEPATH id="juce_audio_devices" path="../../juce"/>
+        <MODULEPATH id="juce_audio_formats" path="../../juce"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../../juce"/>
+        <MODULEPATH id="juce_audio_processors" path="../../juce"/>
+        <MODULEPATH id="juce_audio_utils" path="../../juce"/>
+        <MODULEPATH id="juce_core" path="../../juce"/>
+        <MODULEPATH id="juce_data_structures" path="../../juce"/>
+        <MODULEPATH id="juce_events" path="../../juce"/>
+        <MODULEPATH id="juce_graphics" path="../../juce"/>
+        <MODULEPATH id="juce_gui_basics" path="../../juce"/>
+        <MODULEPATH id="juce_gui_extra" path="../../juce"/>
+      </MODULEPATHS>
+    </VS2019>
+    <XCODE_MAC targetFolder="Builds/MacOSX" smallIcon="bbIVgR" bigIcon="bbIVgR">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug"/>
+        <CONFIGURATION isDebug="0" name="Release"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_devices" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_formats" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_processors" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_utils" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_core" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_data_structures" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_events" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_graphics" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_gui_basics" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_gui_extra" path="C:\JUCE\modules"/>
+      </MODULEPATHS>
+    </XCODE_MAC>
+    <LINUX_MAKE targetFolder="Builds/LinuxMakefile" smallIcon="bbIVgR" bigIcon="bbIVgR">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="Gain"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="Gain"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path="../../Documents/arvin-studio/vst-projects/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../Documents/arvin-studio/vst-projects/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../Documents/arvin-studio/vst-projects/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../../Documents/arvin-studio/vst-projects/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../Documents/arvin-studio/vst-projects/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../Documents/arvin-studio/vst-projects/JUCE/modules"/>
+        <MODULEPATH id="juce_core" path="../../Documents/arvin-studio/vst-projects/JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../Documents/arvin-studio/vst-projects/JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../../Documents/arvin-studio/vst-projects/JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../Documents/arvin-studio/vst-projects/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../Documents/arvin-studio/vst-projects/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../Documents/arvin-studio/vst-projects/JUCE/modules"/>
+      </MODULEPATHS>
+    </LINUX_MAKE>
+  </EXPORTFORMATS>
+</JUCERPROJECT>
