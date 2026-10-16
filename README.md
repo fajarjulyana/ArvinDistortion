@@ -54,8 +54,8 @@ The project is pre-configured in `ArvinDistortionPedal.jucer` using **JUCE 7.0.9
 
 1. **Clone the Repository:**
    ```bash
-   git clone https://github.com/fajarjulyana/arvin-distortion-pedal.git
-   cd arvin-distortion-pedal
+   git clone https://github.com/fajarjulyana/ArvinDistortion.git
+   cd ArvinDistortion
    ```
 
 2. **Open Project in Projucer (JUCE 7.0.9):**
